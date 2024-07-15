@@ -28,6 +28,9 @@ log/
 *.jpg
 *.png
 *.txt
+run/
+runs/
+experiment/
 
 # 忽略预训练模型文件夹
 pretrained_model/*
