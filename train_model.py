@@ -115,6 +115,7 @@ def main(**kwargs):
 if __name__ == '__main__':
     debug = True
     if debug:
+        opt.debug = debug
         opt._parse({})
         train(opt)
     else:

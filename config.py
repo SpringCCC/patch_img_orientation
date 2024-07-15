@@ -10,14 +10,11 @@ class Config():
     
 
     #动态生成数据集
-    debug = True
+    debug = False
     train_date = date.today()
     txt_root = r"/mnt/hd1/springc/code/work/vehicle_orientation/patch_img_orientation/assets/"
     base_sv_model_path = f"/mnt/hd1/springc/train_model_save/nuscene_car_direct/{train_date}/"
-    if debug:
-        base_log_dir = "run/debug/experiment" # summerwriter 存放位置
-    else:
-        base_log_dir = "run/experiment" # summerwriter 存放位置
+
     train_txt = None          #占位符
     val_txt = None
     test_txt = None
@@ -55,6 +52,8 @@ class Config():
     optimizer = 'adam' # 'sgd' ********************
 
     def _parse(self, kwargs:dict):
+        if self.debug:
+            self.base_log_dir = "run/debug/experiment" 
         state_dict = self._state_dict()
         for k, v in kwargs.items():
             if k not in state_dict:
