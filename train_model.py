@@ -22,6 +22,9 @@ from torch.utils.tensorboard import SummaryWriter
 import fire
 
 def loginfo(opt:Config):
+    for k, v in opt.__dict__.items():
+        if not k.startswith("_"):
+            logging.info(f"{k}:{v}")
     logging.info(f"加载 {opt.model_name} 成功...")
     logging.info(f"加载训练集 {opt.train_txt} 成功...")
     logging.info(f"加载验证   {opt.val_txt} 成功...")
@@ -30,20 +33,24 @@ def loginfo(opt:Config):
     logging.info(f"加载调度器 {opt.scheduler} 成功...")
     logging.info(f"准备训练模型...")
 
-def train(opt:Config):
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.cuda)
-    setup_logging(os.path.join(os.path.dirname(__file__), f'run/log/', opt.log_dir_name+".log"))
-    logging.info("^"*100)
-    writer = SummaryWriter(log_dir=opt.log_dir)
-    model = get_model(opt.model_name)
-    if opt.model_weight:
-        model = model.load_state_dict(torch.load(opt.model_weight))
-    model.cuda()
+def build_dataloader(opt):
     train_dataset = Dataset(opt, is_Train=True)
     val_dataset   = Dataset(opt, is_Train=False)
     train_dataloader = DataLoader(train_dataset, opt.bs, num_workers=opt.num_workers, drop_last=True, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, 1, num_workers=1, shuffle=False)
-    criterion = get_loss(opt.loss_name)
+    val_dataloader = DataLoader(val_dataset, opt.val_bs, num_workers=1, shuffle=False)
+    return train_dataloader, val_dataloader
+
+def train(opt:Config):
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(opt.cuda)
+    setup_logging(os.path.join(os.path.dirname(__file__), f'run/log/', opt.log_dir_name+".log"))
+    logging.info("*"*100)
+    writer = SummaryWriter(log_dir=opt.log_dir)
+    model = get_model(opt)
+    if opt.model_weight:
+        model = model.load_state_dict(torch.load(opt.model_weight))
+    model.cuda()
+    train_dataloader, val_dataloader = build_dataloader(opt)
+    criterion = get_loss(opt)
     if opt.optimizer == 'adam':
         optimizer = Adam(model.parameters(), lr=opt.lr)
     elif opt.optimizer == 'sgd':
@@ -53,7 +60,8 @@ def train(opt:Config):
     best_val_loss = 1e5
     for epoch in tqdm(range(opt.epochs)):
         train_one_epoch(model, train_dataloader, optimizer, criterion, epoch, writer)
-        scheduler.step()
+        if not opt.is_fix_lr:
+            scheduler.step()
         avg_loss = val(model, val_dataloader, criterion, epoch, best_val_loss, writer)
         best_val_loss = avg_loss if avg_loss<best_val_loss else best_val_loss
 
@@ -103,5 +111,11 @@ def main(**kwargs):
     opt._parse(kwargs)
     train(opt)
 
+
 if __name__ == '__main__':
-    fire.Fire()
+    debug = False
+    if debug:
+        opt._parse({})
+        train(opt)
+    else:
+        fire.Fire()

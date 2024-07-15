@@ -12,8 +12,11 @@ class Dataset:
             self.imgs_path, self.angles = self.readtxt(opt.train_txt)
         else:
             self.imgs_path, self.angles = self.readtxt(opt.val_txt)
-        self.filter_img_size() #过滤掉图像尺寸不合要求的图像
+        self.data_process() #图像或者数据预处理，过滤掉一些无用数据，或者其他操作
         self.process = BasicProcess(opt, self.is_Train)
+
+    def data_process(self):
+        self.filter_img_size() #过滤掉图像尺寸不合要求的图像
 
     def filter_img_size(self):
         imgs_path, angles = [], []

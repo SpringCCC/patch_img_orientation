@@ -8,19 +8,25 @@
 '''
 import torch
 import torch.nn as nn
+from .abc_loss import LossAbstractClass
 
-def convert_angle_to_cos_sin(angles):
-    cos = torch.cos(angles)
-    sin = torch.cos(angles)
-    gt_cos_sin = torch.stack([cos, sin], dim=1)
-    return gt_cos_sin
+class CosSin_Loss(LossAbstractClass):
+
+    def convert_angle_to_cos_sin(self, angles):
+        cos = torch.cos(angles)
+        sin = torch.cos(angles)
+        gt_cos_sin = torch.stack([cos, sin], dim=1)
+        return gt_cos_sin
 
 
-def calc_cos_sin_loss(predict, angles):
-    # predict:N, 2
-    # angles: N
-    gt_cos_sin = convert_angle_to_cos_sin(angles)
-    mse_loss = nn.MSELoss()
-    loss = mse_loss(predict, gt_cos_sin)
-    return loss
+    def calc_loss(self, predict, angles):
+        # predict:N, 2
+        # angles: N
+        gt_cos_sin = self.convert_angle_to_cos_sin(angles)
+        mse_loss = nn.MSELoss()
+        loss = mse_loss(predict, gt_cos_sin)
+        return loss
+    
+
+    
 

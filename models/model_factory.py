@@ -2,8 +2,8 @@ from .resnet_model import MyResNetModel
 
 
 
-def get_model(model_name):
-    if 'resnet' in model_name:
-        model = MyResNetModel(model_name)
+def get_model(opt):
+    if 'resnet' in opt.model_name:
+        model = MyResNetModel(opt.model_name, opt.cls_num)
 
     return model

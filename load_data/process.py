@@ -38,7 +38,7 @@ class BasicProcess(AbstractProcess):
             # 若高度大于宽度，则在左右两侧填充  
             padding_size = height - width
             padding_size = random.randint(0, padding_size)
-            if self.opt.center_pad:
+            if self.opt.center_pad or not self.is_Train:
                 padding_size = (height - width) // 2
             padding = (0, 0, padding_size, height - width - padding_size)
         else:  
@@ -100,7 +100,7 @@ class BasicProcess(AbstractProcess):
                 ])
         else:
             transform = transforms.Compose([
-                # transforms.Resize((self.opt.random_img_size, self.opt.random_img_size)),
+                transforms.Resize((self.opt.img_size, self.opt.img_size)),
                 # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  # 色彩抖动  
                 # transforms.AdjustBrightness(brightness_factor=0.2),  # 亮度调整，参数为亮度因子  
                 # transforms.AdjustContrast(contrast_factor=0.2),  # 对比度调整，参数为对比度因子  
