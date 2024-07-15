@@ -31,7 +31,7 @@ log/
 run/
 runs/
 experiment/
-
+analyze/
 # 忽略预训练模型文件夹
 pretrained_model/*
 
