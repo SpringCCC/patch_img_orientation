@@ -2,9 +2,9 @@ import numpy as np
 import math
 from springc_utils import *
 import torch.nn as nn
-from .abc_loss import LossAbstractClass
+from .abc_loss import BasicLoss
 
-class Gauss_Loss(LossAbstractClass):
+class Gauss_Loss(BasicLoss):
 
     def __init__(self, class_num=360, sigma=0.005) -> None:
         idx = np.arange(class_num)
@@ -30,10 +30,7 @@ class Gauss_Loss(LossAbstractClass):
         return idm*csG + csG/2
     
     def calc_loss(self, predict, angle):
-        angle = toNumpy(angle)
-        degree = np.asarray([round(math.degrees(a)) for a in angle])
-        degree = np.clip(degree, -180, 179)
-        degree += 180
+        degree = self.convert_angle_to_degree(angle)
         gt_label = np.asarray([self.angle2label(d) for d in degree])
         gt_label = toTensor(gt_label).float().cuda()
         mse_loss = nn.MSELoss()

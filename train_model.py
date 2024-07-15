@@ -113,7 +113,7 @@ def main(**kwargs):
 
 
 if __name__ == '__main__':
-    debug = False
+    debug = True
     if debug:
         opt._parse({})
         train(opt)

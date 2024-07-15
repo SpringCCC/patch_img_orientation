@@ -1,6 +1,9 @@
 from .cos_sin_loss import *
 from .gauss import *
 from .single_angle import *
+from .abc_loss import LossAbstractClass
+
+
 
 
 def get_loss(opt):
